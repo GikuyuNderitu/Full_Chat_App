@@ -1,0 +1,31 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<dom-module id="my-app">
+	<template>
+
+		<style>
+			:host {
+
+			}
+
+			:host > app-header {
+				background-color: #06d;
+			}
+		</style>
+
+		<app-header condenses fixed reveals>
+			<app-toolbar>
+				<h1 main-title>Served by Go</h1>
+			</app-toolbar>
+		</app-header>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'my-app'
+		})
+	</script>
+</dom-module>
