@@ -1,0 +1,25 @@
+{
+  "name": "chat_application",
+  "version": "1.0.0",
+  "description": "## Welcome Hi All! I decided I want to try my hand at building a PWA [(Progressive Web App)](https://developers.google.com/web/fundamentals/getting-started/codelabs/your-first-pwapp/ \"Your First Progressive Web App\")",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "webpack": "^2.4.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GikuyuNderitu/Full_Chat_App_PWA.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GikuyuNderitu/Full_Chat_App_PWA/issues"
+  },
+  "homepage": "https://github.com/GikuyuNderitu/Full_Chat_App_PWA#readme"
+}
