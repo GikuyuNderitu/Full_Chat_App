@@ -1,25 +1,37 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="./my-chat-display.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<!--<link rel="import" href="../bower_components/app-layout/app-scroll-effects/effects/waterfall.html">-->
 <link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 
 <dom-module id="my-app">
 	<template>
 
 		<style>
 			:host {
+				/*fill later*/
+			}
 
+			app-toolbar {
+				background-color: #09d;				
+			}
+
+			#menu-toolbar {
+				display: flex;
+				justify-content: space-around;
 			}
 
 			app-header {
 				--app-header-shadow: {
 					box-shadow: inset 0px 3px 2px -3px #555;
 				};
-				background-color: #09d;
 			}
 
 			paper-fab.gray {
@@ -30,27 +42,148 @@
 				color: white;
 			}
 
+			.main-content {
+				padding: 20px 0;
+				height: 95%;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				padding: 20px 0;
+			}
+
+			.chat-display {
+				border-bottom: 2px solid #777;
+				flex: 8;
+			}
+
+			.messaging {
+				margin-top: 10px;
+				flex: 1;
+				border-radius: 3px;
+				border: 2px solid #777;
+				padding: 5px;
+				display: flex;
+				align-items: center;
+			}
+
+			.messaging paper-textarea {
+				flex: 7;
+			}
+
 		</style>
 
-		<app-header 
-			condenses
-			fixed
-			effects="waterfall"
-			style="height: 100px;">
-			<app-toolbar style="height: 80px;">
-				<paper-fab
-					spacer icon="add"
-					class="gray"></paper-fab>
-				<h1 spacer main-title>Served by Go</h1>
-			</app-toolbar>
-		</app-header>
+		<app-drawer-layout fullbleed>
+			<app-drawer id="menu-toggle">
+				<app-toolbar id="menu-toolbar">
+					<div menu-title>Menu Title</div>
+					<!--<paper-icon-button
+						icon="close"
+						on-tap="toggleMenu"></paper-icon-button>-->
+				</app-toolbar>
+				<ul>
+					<li>HI 1</li>
+					<li>HI 2</li>
+					<li>HI 3</li>
+					<li>HI 4</li>
+					<li>HI 5</li>
+				</ul>
+			</app-drawer>
+
+			<app-header-layout has-scrolling-region>
+				<app-header 
+					condenses
+					fixed
+					effects="waterfall"
+					style="height: 100px;">
+					<app-toolbar style="height: 80px;">
+						<paper-icon-button
+							spacer 
+							icon="menu"
+							drawer-toggle></paper-icon-button>
+						<div spacer main-title>Served by Go</div>
+					</app-toolbar>
+				</app-header>
+
+
+				<main class="main-content">
+					<section class="chat-display">
+						<my-chat-display id="messages" messages="[[messages]]"></my-chat-display>
+					</section>
+					<section class="messaging">
+						<paper-textarea id="user-input" label="Enter Message ..." maxRows=3 value="{{newMessage}}"></paper-textarea>
+						<paper-icon-button
+							on-tap="send"
+							icon="send"></paper-icon-button>
+					</section>
+				</main>
+			</app-header-layout>			
+		</app-drawer-layout>
+
+
+
 
 
 
 	</template>
 	<script>
 		Polymer({
-			is: 'my-app'
+			is: 'my-app',
+			properties: {
+				messages: {
+					type: Array,
+					value: []
+				},
+				username: {
+					type: String,
+					value: 'GikuyuNderitu'
+				},
+				newMessage: {
+					type: String,
+					value: ''
+				}
+			},
+			toggleMenu() {
+				const drawer = document.querySelector("#menu-toggle")
+
+				drawer.opened ? drawer.close() : drawer.open()
+			},
+			ready() {
+				const self = this
+				const input = self.querySelector("#user-input")
+				input.maxRows = 2
+				console.log(input);
+				self.ws = new WebSocket(`ws://${window.location.host}/ws`)
+				self.ws.onopen = event => {
+					console.log(event);
+					self.ws.send(JSON.stringify({
+							username: this.username,
+							message: `${this.username} has just joined the chatroom`
+						})
+					)
+				}
+				self.ws.addEventListener('message', receiveMessage.bind(self))
+				input.addOwnKeyBinding('shift', mysend)
+				console.log(input.maxRows);
+			},
+			send() {
+				console.log('sending', this.newMessage);
+				if(this.newMessage) {
+					this.ws.send(JSON.stringify({
+							username: this.username,
+							message: this.newMessage
+						})
+					)
+					this.newMessage = ''
+				}
+			}
 		})
+		const mysend = e => {console.log('sending');}
+
+		const receiveMessage = function (e) {
+			const msg = JSON.parse(e.data)
+			console.log(msg);
+			this.$.messages.addMsg(msg)
+			
+		}
 	</script>
 </dom-module>

@@ -1,0 +1,35 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<dom-module id="my-chat-display">
+	<template>
+		<style>
+			:host {
+
+			}
+
+			div.message {
+				display: flex;
+			}
+		</style>
+		<h1>Hello!</h1>
+		<template is="dom-repeat" items="[[messages]]">
+			<div class="message-container">[[item.message]]</div>
+		</template>
+
+	</template>
+
+	<script>
+		Polymer({
+			is: 'my-chat-display',
+			properties: {
+				messages: Array
+			},
+			addMsg(msg) {
+				console.log('hello!');
+				this.push('messages', msg)
+				console.log(msg);
+			}
+		})
+	</script>
+</dom-module>
