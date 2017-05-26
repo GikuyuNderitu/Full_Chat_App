@@ -1,0 +1,27 @@
+<link rel='import' href='../bower_components/polymer/polymer-element.html'>
+
+<!--
+Example:
+<my-elem></my-elem>
+-->
+<dom-module id='my-room'>
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+		<h2>[[pageName]] Room</h2>
+	</template>
+	<script>
+		class MyRoom extends Polymer.Element {
+			static get is() { return 'my-room'; }
+			static get properties() {
+				return {
+					pageName: String
+				}
+			}
+		}
+		window.customElements.define(MyRoom.is, MyRoom)
+	</script>
+</dom-module>

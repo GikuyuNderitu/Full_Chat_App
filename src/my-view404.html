@@ -1,0 +1,46 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-view404">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+    </style>
+    
+    <app-header-layout fullbleed>
+      <app-header>
+        <app-toolbar>
+          <div main-title>My App</div>
+        </app-toolbar>
+      </app-header>
+      Oops you hit a 404. <a href="[[rootPath]]">Head back to home.</a>
+    </app-header-layout>
+
+
+  </template>
+
+  <script>
+    class MyView404 extends Polymer.Element {
+      static get is() { return 'my-view404'; }
+      static get properties() {
+        return {
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String,
+        };
+      }
+    }
+
+    window.customElements.define(MyView404.is, MyView404);
+  </script>
+</dom-module>

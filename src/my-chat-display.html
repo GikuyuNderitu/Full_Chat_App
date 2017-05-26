@@ -1,35 +1,237 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="shared-styles.html">
 
 <dom-module id="my-chat-display">
 	<template>
-		<style>
+		<style include="shared-styles">
 			:host {
-
+				/*Fill In later*/
+				display: block;
 			}
 
 			div.message {
 				display: flex;
 			}
+
+			.message-container {
+				display: flex;
+				border-radius: 7px;
+			}
+
+			app-header-layout {
+				height: 100vh;
+			}
+
+			app-drawer app-toolbar {
+				background-color: var(--app-primary-color);
+			}
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+      }
+
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+        line-height: 40px;
+      }
+
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
+
+			.chat-area {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				width: 90%;
+				margin: 0 auto;
+			}
+
+			.messages-container {
+				overflow-y: scroll;
+				flex: 0 1 80%;
+			}
+
+			.message-container {
+				margin: 3px 0;
+			}
+
+			.message-container .message {
+				flex: auto;
+			}
+
+			.user-name {
+				font-size: 9px;
+				flex: 0 0 20%;
+			}
+
+			.message-container.right .message{
+				text-align: right;
+				background-color: #bbb;
+				order: -1;
+			}
+
+			.new-message-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border: 2px #777 solid;
+				background: white;
+				border-radius: 7px;
+				align-self: flex-end;
+				width: 100%;
+				margin-bottom: 10px;
+			}
+
+			.new-message-container paper-textarea {
+				width: 90%;
+				margin: 7px;
+			}
+
+			.new-message-container paper-icon-button {
+				color: orangered;
+				margin: 0 7px;
+				border-radius: 50%;
+				border: 2px solid #bbb;
+			}
 		</style>
-		<h1>Hello!</h1>
-		<template is="dom-repeat" items="[[messages]]">
-			<div class="message-container">[[item.message]]</div>
-		</template>
+
+    <app-drawer-layout fullbleed>
+      <!-- Drawer content -->
+      <app-drawer id="drawer" slot="drawer">
+        <app-toolbar main-title>Menu</app-toolbar>
+        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+          <!--<a name="view2" href="view2">View Two</a>
+          <a name="view3" href="view3">View Three</a>-->
+					<!--TODO: Fill with room options!-->
+        </iron-selector>
+      </app-drawer>
+
+      <!-- Main content -->
+      <app-header-layout has-scrolling-region>
+
+        <app-header slot="header" condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>My App</div>
+          </app-toolbar>
+        </app-header>
+				<div class="chat-area">
+					<h1>Hello!</h1>
+
+					<div class="messages-container">
+						<template is="dom-repeat" items="[[messages]]">
+							<div class$="{{_positionMessage(item.username)}}">
+								<span class="user-name">[[item.username]]</span>
+								<span class="message">[[item.message]]</span>
+							</div>
+						</template>
+					</div>
+
+					<div class="new-message-container">
+						<paper-textarea 
+							id="userInput"
+							label="Enter New Message"
+							max-rows=2 
+							value="{{newMessage}}" 
+							always-float-label></paper-textarea>
+						
+						<paper-icon-button
+							on-tap="_sendMessage"
+							icon="send"
+							role="button"></paper-icon-button>
+					</div>
+				</div>
+
+      </app-header-layout>
+    </app-drawer-layout>
+		
+		<iron-pages
+        id="mypages"
+        selected="[[page]]"
+        attr-for-selected="name"
+        fallback-selection="view404"
+        role="main">
+      <my-view404 name="view404"></my-view404>
+    </iron-pages>
 
 	</template>
 
 	<script>
-		Polymer({
-			is: 'my-chat-display',
-			properties: {
-				messages: Array
-			},
-			addMsg(msg) {
-				console.log('hello!');
-				this.push('messages', msg)
-				console.log(msg);
+		class MyChatDisplay extends Polymer.Element {
+			static get is() { return 'my-chat-display'; }
+			static get properties() {
+				return {
+					messages: {
+						type: Array,
+						value: []
+					},
+					newMessage: String,
+					user: String,
+					page: String
+				};
 			}
-		})
+
+			addMsg(msg) {
+				const newMsg = JSON.parse(msg.data);
+				console.log(newMsg);
+				this.push('messages', newMsg);
+			}
+
+			_positionMessage(username) {
+				return username === this.user ? 'message-container right' : 'message-container'
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+				const self = this
+				const input = this.$.userInput
+				input.maxRows = 2
+				console.log(input);
+				self.ws = new WebSocket(`ws://${window.location.host}/ws`)
+				self.ws.onopen = event => {
+					console.log(event);
+					self.ws.send(JSON.stringify({
+							username: this.user,
+							message: `${this.user} has just joined the chatroom`
+						})
+					)
+				}
+				self.ws.addEventListener('message', this.addMsg.bind(self))
+				// input.addOwnKeyBinding('shift', mysend)
+				console.log(input.maxRows);
+			}
+
+			_sendMessage(e) {
+				// User did not supply a message in the message field
+				if(this.newMessage.trim().length < 1) return;
+				this.ws.send(JSON.stringify({
+					username: this.user,
+					message: this.newMessage
+				}));
+				this.newMessage = '';
+			}
+		}
+		
+		window.customElements.define(MyChatDisplay.is, MyChatDisplay);
 	</script>
 </dom-module>

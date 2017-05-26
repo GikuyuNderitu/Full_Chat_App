@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"sync"
 
+	mgo "gopkg.in/mgo.v2"
+
+	"github.com/GikuyuNderitu/chat_application/server/controllers"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,6 +26,15 @@ type Message struct {
 func main() {
 	wg.Add(1)
 
+	chatDB := createConnection("chat")
+	uc := controllers.NewUserController(chatDB)
+
+	// r := mux.NewRouter()
+	// r.NotFoundHandler = http.HandlerFunc(HomeHandler)
+	// r.HandleFunc("/", HomeHandler)
+	// r.HandleFunc("/ws", handleConnections)
+	// r.HandleFunc("/login", handleLogin)
+
 	// Handle Serving Static Files
 	assetFiles := http.FileServer(http.Dir("assets"))
 	distFiles := http.FileServer(http.Dir("dist"))
@@ -33,6 +45,7 @@ func main() {
 
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/ws", handleConnections)
+	http.HandleFunc("/login", uc.Login)
 	http.Handle("/assets/", http.StripPrefix("/assets/", assetFiles))
 	http.Handle("/dist/", http.StripPrefix("/dist/", distFiles))
 	http.Handle("/bower_components/", http.StripPrefix("/bower_components/", bowerFiles))
@@ -46,9 +59,24 @@ func main() {
 	wg.Wait()
 }
 
+func createConnection(endpoint string) *mgo.Database {
+	// Connect to local mongodb
+	connection, err := mgo.Dial("mongodb://localhost")
+
+	// Check if connection error, is mongo is running
+	if err != nil {
+		panic(err)
+	}
+	return connection.DB(endpoint)
+}
+
 // HomeHandler serves the index.html file
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {

@@ -1,25 +1,15 @@
 {
-  "name": "chat_application",
-  "version": "1.0.0",
-  "description": "## Welcome Hi All! I decided I want to try my hand at building a PWA [(Progressive Web App)](https://developers.google.com/web/fundamentals/getting-started/codelabs/your-first-pwapp/ \"Your First Progressive Web App\")",
-  "main": "index.js",
-  "dependencies": {},
+  "name": "polymer-starter-kit",
+  "license": "BSD-3-Clause",
   "devDependencies": {
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "webpack": "^2.4.1"
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.7.0",
+    "eslint-plugin-html": "^2.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GikuyuNderitu/Full_Chat_App_PWA.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/GikuyuNderitu/Full_Chat_App_PWA/issues"
-  },
-  "homepage": "https://github.com/GikuyuNderitu/Full_Chat_App_PWA#readme"
+    "lint": "npm run lint:javascript",
+    "lint:javascript": "eslint . --ext js,html --ignore-path .gitignore",
+    "test": "polymer test",
+    "test:integration": "polymer build # test that psk builds without error with the CLI"
+  }
 }

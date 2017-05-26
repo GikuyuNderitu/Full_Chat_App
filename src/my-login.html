@@ -1,0 +1,161 @@
+<link rel='import' href='../bower_components/polymer/polymer-element.html'>
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel='import' href='shared-styles.html'>
+<!--
+Example:
+<my-elem></my-elem>
+-->
+<dom-module id='my-login'>
+	<template>
+		<style include="shared-styles">
+			:host {
+				display: block;
+				justify-content: center;
+				align-items: center;
+				flex-direction: column;
+			}
+
+			main {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-direction: column;
+			}
+
+			paper-button {
+				background-color: var(--app-primary-color);
+				color: white;
+			}
+
+			.form {
+				display: flex;
+				min-width: 80%;
+				flex-direction: column;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+		</style>
+		
+		<iron-ajax
+			 id="serverRequest"
+			 body="[[userObj]]"
+			 method="POST"
+			 url="/login"
+			 handle-as="json"
+			 last-response="{{success}}"
+			 on-response="_handleResponse"
+			 last-error="_handleError"></iron-ajax>
+
+		<app-header-layout fullbleed>
+			<app-header>
+				<app-toolbar spacer main-title>Full Chat PWA</app-toolbar>
+			</app-header>
+
+			<main>
+				<h1>Login</h1>
+
+				<div class="card form">
+					
+					<paper-input 
+						id="username-iput"
+						label="User Name"
+						value="{{user}}"></paper-input>
+					
+					<paper-input 
+						id="email-input"
+						label="Email"
+						value="{{email}}"></paper-input>
+
+					<paper-input 
+						id="password-input"
+						label="Password"
+						validator="_passwordValidator"
+						value="{{password}}"
+						auto-validate></paper-input>
+					
+					
+					<paper-button on-tap="_loginUser" raised>
+						Submit 
+						<iron-icon style="margin-left: 20px;" icon="send"></iron-icon>
+					</paper-button>				
+				</div>
+			</main>
+		</app-header-layout>
+		
+
+
+	</template>
+	<script>
+		class MyLoginView extends Polymer.Element {
+			static get is() { return 'my-login'; }
+			static get properties() {
+				return {
+					user: {
+						type: String,
+						value: ''
+					},
+					email: {
+						type: String,
+						value: ''
+					},
+					password: {
+						type: String,
+						value: ''
+					},
+					userObj: {
+						type: String,
+						computed: '_stringifyUser(user, email, password)'
+					}
+				}
+			}
+
+			_stringifyUser(user, email, password) {
+				return JSON.stringify({
+					username: user,
+					email: email,
+					password: password
+				})
+			}
+
+			_passwordValidator(e) {
+				console.log(e);
+				console.log('hello');
+				return false;
+			}
+
+			_loginUser(e) {
+				this.$.serverRequest.generateRequest();
+				this._clearInputs();
+			}
+
+			_clearInputs() {
+				this.email = '';
+				this.password = '';
+			}
+
+			_handleResponse(e) {
+				console.log(this.success);
+				this.dispatchEvent(new CustomEvent('logged-in', {
+					detail: {
+						user: this.success
+					},
+					composed: true
+				}));
+			}
+
+			_handleError(e) {
+				console.log('Something bad happened');
+				console.log(e);
+			}
+		}
+		window.customElements.define(MyLoginView.is, MyLoginView);
+	</script>
+</dom-module>
