@@ -22,5 +22,3 @@ func WriteJSON(success bool, data interface{}, w http.ResponseWriter) {
 		w.Write(js)
 	}
 }
-
-// TODO: Add Santize method to remove Password Field
