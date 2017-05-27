@@ -17,4 +17,11 @@ module.exports = {
     '/bower_components/webcomponentsjs/*',
   ],
   navigateFallback: 'index.html',
+  runtimeCaching:[{
+    urlPattern: /\/login/,
+    handler: 'networkFirst'
+  }, {
+    urlPattern: '/',
+    handler: 'fastest'
+  }],
 };
