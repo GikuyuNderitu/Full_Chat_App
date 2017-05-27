@@ -113,7 +113,8 @@ Example:
 					userObj: {
 						type: String,
 						computed: '_stringifyUser(user, email, password)'
-					}
+					},
+					success: Object
 				}
 			}
 
@@ -142,7 +143,7 @@ Example:
 			}
 
 			_handleResponse(e) {
-				console.log(this.success);
+				// console.log(this.success);
 				this.dispatchEvent(new CustomEvent('logged-in', {
 					detail: {
 						user: this.success
