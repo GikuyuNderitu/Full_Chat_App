@@ -64,6 +64,8 @@ func (uc UserController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// Refactor this code into user model
+
 	// Validate input
 	err = input.Validate()
 	if err != nil {
@@ -76,13 +78,11 @@ func (uc UserController) Login(w http.ResponseWriter, r *http.Request) {
 	err = uc.db.C("users").Find(bson.M{"email": input.Email}).One(&user)
 	if err != nil {
 		// Create User because it wasn't found
-		input.ID = bson.NewObjectId()
-		input.Register()
-		log.Printf("New to db %v", input)
-		uc.db.C("users").Insert(input)
-		utils.WriteJSON(true, sanitizeUser(input), w)
+		log.Printf("Entered email not found: %v", input.Email)
+		utils.WriteJSON(false, err, w)
 		return
 	}
+
 	log.Printf("Logging in user %v", user)
 	if err = user.Login(input.Password); err != nil {
 		log.Printf("User provided incorrect password")
@@ -90,6 +90,12 @@ func (uc UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.WriteJSON(true, sanitizeUser(user), w)
+}
+
+// Delete removes all user instances within the DB
+func (uc *UserController) Delete(w http.ResponseWriter, r *http.Request) {
+	uc.db.C("users").RemoveAll(bson.M{})
+	return
 }
 
 // TODO: Add Santize method to remove Password Field
