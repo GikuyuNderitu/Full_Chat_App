@@ -11,19 +11,22 @@ Example:
 			:host {
 				display: flex;
 				justify-content: space-around;
+				align-items: center;
+				margin: 5px 0;
 			}
 
 			.user-actions {
 				display: flex;
 				flex-direction: column;
-				align-items: flex-end;
+				align-items: center;
+				justify-content: space-around;
 			}
 		</style>
 		<!--Add user Image-->
 		<!--<iron-image src="" preload sizing="cover"></iron-image>-->
-		<a href="{{id}}"><div class="user-image">USER IMAGE</div></a>
+		<a href="[[id]]"><div class="user-image">USER IMAGE</div></a>
 		<div class="user-actions">
-			<a href="{{id}}">{{name}}</a>
+			<div on-click="_setSelected">[[name]]</div>
 			<a href="#" tabindex="-1">
 				<paper-button on-tap="_logout">Logout</paper-button>
 			</a>
@@ -36,12 +39,28 @@ Example:
 			static get properties() {
 				return {
 					name: String,
-					id: String
+					id: String,
+					selected: {
+						type: String,
+						notify: true
+					}
 				}
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+				const selectedLog = _ => console.log(this.selected)
+				setTimeout(selectedLog, 1200)
 			}
 			_logout() {
 				Cookies.remove('user');
 				window.location.assign("/");
+			}
+
+			_setSelected() {
+				console.log("tapped div");
+				this.set("selected", "user-page")
+				console.log(this.selected);
 			}
 		}
 		window.customElements.define(UserMenuView.is, UserMenuView)

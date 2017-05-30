@@ -9,12 +9,14 @@
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
-<link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-user-menu.html">
+
+<link rel="lazy-import" href="my-user-page.html">	
+<link rel="lazy-import" href="my-chat-display.html">
 
 <dom-module id="my-home">
 	<template>
@@ -45,8 +47,14 @@
         display: none;
       }
 
+			app-drawer {
+				display: flex;
+				/*flex-direction: column;*/
+			}
+
       .drawer-list {
         margin: 0 20px;
+				border-right: 2px solid #777;
       }
 
       .drawer-list a {
@@ -64,8 +72,15 @@
 
 			#menu-divider {
 				height: 10px;
+				margin: 2px;
 				border: 0;
 				box-shadow: 0 10px 10px -10px #8c8b8b inset;
+			}
+
+			.menu-subtitle {
+				color: var(--app-primary-color);
+				font-size: 19px;
+				font-weight: 500;
 			}
 
 			.chat-area {
@@ -125,13 +140,21 @@
 			}
 		</style>
 
+		<app-route
+			route="{{currentRoute}}"
+			pattern="[[rootPattern]]:page"
+			data="{{rootData}}"
+			tail="{{tailData}}"></app-route>
+
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer">
         <app-toolbar main-title>Chatterly</app-toolbar>
-				<my-user-menu name="{{user}}"></my-user-menu>
+				<my-user-menu name="{{user}}" selected="{{page}}"></my-user-menu>
 				<hr id="menu-divider">
+				<h3 class="menu-subtitle">Rooms</h3>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+					<a href$="{{currentRoute.prefix}}/general" name="general">General Room</a>
           <!--<a name="view2" href="view2">View Two</a>
           <a name="view3" href="view3">View Three</a>-->
 					<!--TODO: Fill with room options!-->
@@ -144,7 +167,7 @@
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>My App</div>
+            <div main-title>Full Chat PWA</div>
 						<paper-button on-tap="_logout">Logout</paper-button>
           </app-toolbar>
         </app-header>
@@ -175,17 +198,19 @@
 					</div>
 				</div>
 
+				<iron-pages
+						id="mypages"
+						selected="[[page]]"
+						attr-for-selected="name"
+						fallback-selection="view404"
+						role="main">
+					<!--<my-view404 name="view404"></my-view404>-->
+					<my-user-page name="user-page"></my-user-page>
+					<my-chat-display name="chat-display"></my-chat-display>
+				</iron-pages>
       </app-header-layout>
     </app-drawer-layout>
 		
-		<iron-pages
-        id="mypages"
-        selected="[[page]]"
-        attr-for-selected="name"
-        fallback-selection="view404"
-        role="main">
-      <!--<my-view404 name="view404"></my-view404>-->
-    </iron-pages>
 
 	</template>
 
@@ -193,7 +218,7 @@
 		// const mysend = e => {
 		// 	console.log("Hi from mysend",e);
 		// }
-		class MyChatDisplay extends Polymer.Element {
+		class MyHome extends Polymer.Element {
 			static get is() { return 'my-home'; }
 			static get properties() {
 				return {
@@ -203,7 +228,12 @@
 					},
 					newMessage: String,
 					user: String,
-					page: String
+					page: {
+						type: String,
+						value: "chat-display",
+						observer: "_pageChanged"
+					},
+					currentRoute: String
 				};
 			}
 
@@ -220,6 +250,8 @@
 			connectedCallback() {
 				super.connectedCallback();
 
+				console.log(this.currentRoute);
+
 				// Get information from 
 				const user = Cookies.getJSON('user');
 				if(!user) { 
@@ -231,11 +263,11 @@
 				this.id = user._id;
 
 				// Initialize websocket connection
-				const self = this
-				const input = this.$.userInput
-				input.maxRows = 2
+				const self = this;
+				const input = this.$.userInput;
+				input.maxRows = 2;
 				console.log(input);
-				self.ws = new WebSocket(`ws://${window.location.host}/ws`)
+				self.ws = new WebSocket(`ws://${window.location.host}/ws`);
 				self.ws.onopen = event => {
 					console.log(event);
 					self.ws.send(JSON.stringify({
@@ -243,13 +275,21 @@
 							username: this.user,
 							message: `${this.user} has just joined the chatroom`
 						})
-					)
+					);
 				}
-
 
 				self.ws.addEventListener('message', this.addMsg.bind(self))
 				// input.addOwnKeyBinding('Enter', mysend.bind.this)
 				console.log(input.maxRows);
+			}
+
+			_pageChanged(page) {
+				var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+        Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            undefined,
+            true);
 			}
 
 			_logout(e) {
@@ -273,6 +313,6 @@
 			}
 		}
 		
-		window.customElements.define(MyChatDisplay.is, MyChatDisplay);
+		window.customElements.define(MyHome.is, MyHome);
 	</script>
 </dom-module>
