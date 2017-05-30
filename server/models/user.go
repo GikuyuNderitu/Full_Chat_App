@@ -69,8 +69,10 @@ func (u *User) Validate() error {
 
 // Login validates input that user makes when logging in username
 func (u *User) Login(ip string) error {
+	log.Printf("User password from login: %v", u.Password)
 	errorObject := UserError{}
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(ip)); err != nil {
+		log.Printf("Error from Compare and Hash: %v", err)
 		errorObject.Password = "User did not supply a matching password."
 		return &errorObject
 	}
@@ -78,7 +80,7 @@ func (u *User) Login(ip string) error {
 }
 
 // Register validates the user input when a user supplies a not before seen email address (will implement with a register route later)
-func (u *User) Register() (*UserError, bool) {
+func (u *User) Register() error {
 	log.Printf("%v", u)
 
 	errorOccured := false
@@ -106,18 +108,17 @@ func (u *User) Register() (*UserError, bool) {
 	}
 
 	if errorOccured {
-		return &errorObject, false
+		return &errorObject
 	}
 
 	if u.Password != u.PasswordConfirmation {
 		errorOccured = true
 		errorObject.Password = fmt.Sprintf("Password and Password Confirmation did not match. Given password: %v Given Confirmation: %v", u.Password, u.PasswordConfirmation)
 		log.Printf("Password and Password Confirmation did not match. Given password: %v Given Confirmation: %v", u.Password, u.PasswordConfirmation)
-
 	}
 
 	if errorOccured {
-		return &errorObject, false
+		return &errorObject
 	}
 
 	// No errors, so just hash the password and return
@@ -126,9 +127,9 @@ func (u *User) Register() (*UserError, bool) {
 		// handle error
 		panic("Error occured in hashing password. User Email: " + u.Email)
 	}
-	log.Println(string(hash))
+	log.Printf("Hashed Password: %v", string(hash))
 
 	u.Password = string(hash)
 
-	return nil, true
+	return nil
 }
