@@ -1,0 +1,139 @@
+<link rel='import' href='../bower_components/polymer/polymer-element.html'>
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+link
+<!--
+Example:
+<my-elem></my-elem>
+-->
+<dom-module id='my-chat-display'>
+	<template>
+		<style>
+			:host {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				width: 90%;
+				margin: 0 auto;
+			}
+
+			.messages-container {
+				overflow-y: scroll;
+				flex: 0 1 80%;
+			}
+
+			.message-container {
+				margin: 3px 0;
+			}
+
+			.message-container .message {
+				flex: auto;
+			}
+
+			.user-name {
+				font-size: 9px;
+				flex: 0 0 20%;
+			}
+
+			.message-container.right .message{
+				text-align: right;
+				background-color: #bbb;
+				order: -1;
+			}
+
+			.new-message-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border: 2px #777 solid;
+				background: white;
+				border-radius: 7px;
+				align-self: flex-end;
+				width: 100%;
+				margin-bottom: 10px;
+			}
+
+			.new-message-container paper-textarea {
+				width: 90%;
+				margin: 7px;
+			}
+
+			.new-message-container paper-icon-button {
+				color: orangered;
+				margin: 0 7px;
+				border-radius: 50%;
+				border: 2px solid #bbb;
+			}
+		</style>
+		<h1>Chat Display</h1>
+
+		<h1>Hello!</h1>
+
+		<!--<div class="messages-container">
+			<template is="dom-repeat" items="[[messages]]">
+				<div class$="{{_positionMessage(item.username)}}">
+					<span class="user-name">[[item.username]]</span>
+					<span class="message">[[item.message]]</span>
+				</div>
+			</template>
+		</div>
+
+		<div class="new-message-container">
+			<paper-textarea 
+				id="userInput"
+				label="Enter New Message"
+				max-rows=2 
+				value="{{newMessage}}" 
+				always-float-label></paper-textarea>
+			
+			<paper-icon-button
+				on-tap="_sendMessage"
+				icon="send"
+				role="button"></paper-icon-button>
+		</div>-->
+	</template>
+	<script>
+		class ChatDisplayView extends Polymer.Element {
+			static get is() { return 'my-chat-display'; }
+			static get properties() {
+				return {
+					user: String,
+					id: String,
+					messages: Array
+				}
+			}
+
+			connectedCallback() {
+				// Get information from 
+				const user = Cookies.getJSON('user');
+				if(!user) { 
+					this._pageRedirect('/');
+					return;
+				}
+				console.log(user);
+				this.user = user.username;
+				this.id = user._id;
+
+				// Initialize websocket connection
+				const self = this;
+				const input = this.$.userInput;
+				input.maxRows = 2;
+				console.log(input);
+				self.ws = new WebSocket(`ws://${window.location.host}/ws`);
+				self.ws.onopen = event => {
+					console.log(event);
+					self.ws.send(JSON.stringify({
+							id: this.id,
+							username: this.user,
+							message: `${this.user} has just joined the chatroom`
+						})
+					);
+				}
+
+				self.ws.addEventListener('message', this.addMsg.bind(self))
+				// input.addOwnKeyBinding('Enter', mysend.bind.this)
+				console.log(input.maxRows);
+			}	
+		}
+		window.customElements.define(ChatDisplayView.is, ChatDisplayView)
+	</script>
+</dom-module>

@@ -1,0 +1,30 @@
+<link rel='import' href='../bower_components/polymer/polymer-element.html'>
+<!--
+Example:
+<my-elem></my-elem>
+-->
+<dom-module id='my-user-page'>
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+		<h1>User View</h1>
+	</template>
+	<script>
+		class UserPageView extends Polymer.Element {
+			static get is() { return 'my-user-page'; }
+			static get properties() {
+				return {
+					user: Object,
+					showDrawer: {
+						type: Boolean,
+						notify: true
+					}
+				}
+			}
+		}
+		window.customElements.define(UserPageView.is, UserPageView)
+	</script>
+</dom-module>
