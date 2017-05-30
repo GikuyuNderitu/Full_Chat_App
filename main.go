@@ -39,17 +39,23 @@ func main() {
 	assetFiles := http.FileServer(http.Dir("assets"))
 	distFiles := http.FileServer(http.Dir("dist"))
 	bowerFiles := http.FileServer(http.Dir("bower_components"))
+	nodeModules := http.FileServer(http.Dir("node_modules"))
 	srcFiles := http.FileServer(http.Dir("src"))
+	imageFiles := http.FileServer(http.Dir("images"))
 
 	go handleMessages()
 
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/ws", handleConnections)
+	http.HandleFunc("/register", uc.Register)
 	http.HandleFunc("/login", uc.Login)
+	http.HandleFunc("/delete", uc.Delete)
 	http.Handle("/assets/", http.StripPrefix("/assets/", assetFiles))
 	http.Handle("/dist/", http.StripPrefix("/dist/", distFiles))
 	http.Handle("/bower_components/", http.StripPrefix("/bower_components/", bowerFiles))
+	http.Handle("/node_modules/", http.StripPrefix("/node_modules/", nodeModules))
 	http.Handle("/src/", http.StripPrefix("/src/", srcFiles))
+	http.Handle("/images/", http.StripPrefix("/images/", imageFiles))
 	log.Println("http server started on :8080")
 
 	err := http.ListenAndServe(":8080", nil)
