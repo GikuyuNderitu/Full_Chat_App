@@ -1,0 +1,49 @@
+<link rel='import' href='../bower_components/polymer/polymer-element.html'>
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<!--
+Example:
+<my-elem></my-elem>
+-->
+<dom-module id='my-user-menu'>
+	<template>
+		<style>
+			:host {
+				display: flex;
+				justify-content: space-around;
+			}
+
+			.user-actions {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+			}
+		</style>
+		<!--Add user Image-->
+		<!--<iron-image src="" preload sizing="cover"></iron-image>-->
+		<a href="{{id}}"><div class="user-image">USER IMAGE</div></a>
+		<div class="user-actions">
+			<a href="{{id}}">{{name}}</a>
+			<a href="#" tabindex="-1">
+				<paper-button on-tap="_logout">Logout</paper-button>
+			</a>
+			<!--<div on-tap="_logout">Logout</div>-->
+		</div>
+	</template>
+	<script>
+		class UserMenuView extends Polymer.Element {
+			static get is() { return 'my-user-menu'; }
+			static get properties() {
+				return {
+					name: String,
+					id: String
+				}
+			}
+			_logout() {
+				Cookies.remove('user');
+				window.location.assign("/");
+			}
+		}
+		window.customElements.define(UserMenuView.is, UserMenuView)
+	</script>
+</dom-module>
