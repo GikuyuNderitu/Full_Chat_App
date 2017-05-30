@@ -15,7 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-icons.html">
 
 <link rel="lazy-import" href="my-login.html">
-<link rel="lazy-import" href="my-chat-display.html">
+<link rel="lazy-import" href="my-home.html">
 <link rel="lazy-import" href="my-view404.html">
 
 <dom-module id="my-app">
@@ -52,8 +52,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fallback-selection="view404"
         role="main">
 
-      <my-login name="login"></my-login>
-      <my-chat-display name="chat-display" user="[[username]]"></my-chat-display>
+      <my-login name="login" user="{{user}}"></my-login>
+      <my-home name="home" user="{{user}}"></my-home>
       <my-view404 name="view404"></my-view404>
     </iron-pages>
   </template>
@@ -66,7 +66,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
-          username: String,
+          user: {
+            type: Object
+          },
           page: {
             type: String,
             reflectToAttribute: true,
@@ -81,6 +83,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
+          '_userChanged(user.*)'
         ];
       }
 
@@ -100,7 +103,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _displayChat(e) {
         this.username = e.detail.user.username
         console.log(this.username);
-        this.$.rootLocation.path = 'chat-display';
+        this.set('route.path', 'home');
         console.log(this.$.mypages.selectedItem);
       }
 
@@ -129,6 +132,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             null,
             this._showPage404.bind(this),
             true);
+      }
+
+      _userChanged(user) {
+        if(!user) return this.set('route.path', 'login')
+        this.set('route.path', 'home')
       }
 
       _showPage404() {
